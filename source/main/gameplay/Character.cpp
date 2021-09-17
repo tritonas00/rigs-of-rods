@@ -686,8 +686,22 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
     }
 
-    // Multiplayer label
 #ifdef USE_SOCKETW
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        std::vector<RoRnet::UserInfo> users = App::GetNetwork()->GetUserInfos();
+        users.insert(users.begin(), App::GetNetwork()->GetLocalUserData());
+
+        for (RoRnet::UserInfo const& user: users)
+        {
+            if (xc_simbuf.simbuf_is_remote && App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid) == 0)
+            {
+                entity->setVisible(false);
+            }
+        }
+    }
+
+    // Multiplayer label
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
         // From 'updateCharacterNetworkColor()'
@@ -709,7 +723,10 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
             scene_pos.y += (1.9f + camDist / 100.0f);
 
-            App::GetGfxScene()->DrawNetLabel(scene_pos, camDist, xc_simbuf.simbuf_net_username, xc_simbuf.simbuf_color_number);
+            if (entity->isVisible())
+            {
+                App::GetGfxScene()->DrawNetLabel(scene_pos, camDist, xc_simbuf.simbuf_net_username, xc_simbuf.simbuf_color_number);
+            }
         }
     }
 #endif // USE_SOCKETW
