@@ -4,6 +4,7 @@
 PluginFolder=@PLUGINS_FOLDER@
 
 # Define plugins
+Plugin=Codec_STBI_d
 Plugin=Codec_FreeImage_d
 @CFG_COMMENT_RENDERSYSTEM_D3D9@Plugin=RenderSystem_Direct3D9_d
 @CFG_COMMENT_RENDERSYSTEM_D3D11@Plugin=RenderSystem_Direct3D11_d
