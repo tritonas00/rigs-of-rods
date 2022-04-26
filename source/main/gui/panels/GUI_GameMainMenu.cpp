@@ -239,13 +239,19 @@ void GameMainMenu::DrawMenuPanel()
 void GameMainMenu::DrawVersionBox()
 {
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
-    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING);
-    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION);
+    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Version"), ROR_VERSION_STRING);
+    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Network protocol"), RORNET_VERSION);
+    std::string game_title = "Rigs Of Rods";
+    const ImVec2 game_title_size = ImGui::CalcTextSize(game_title.c_str());
+
+    Ogre::TexturePtr logo = FetchIcon("icon.png");
+    int logo_size = 35;
+
     float text_w = std::max(
         ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
     ImVec2 box_size(
         (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
-        (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()));
+        (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()) + logo_size);
     ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(margin, margin)));
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
@@ -255,8 +261,16 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
-        ImGui::Text("%s", game_ver.c_str());
-        ImGui::Text("%s", rornet_ver.c_str());
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - ((game_title_size.x + logo_size) / 2.f));
+        float orig_cursor_y = ImGui::GetCursorPosY();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 7); // align image with text
+
+        ImGui::Image(reinterpret_cast<ImTextureID>(logo->getHandle()), ImVec2(logo_size, logo_size));
+        ImGui::SameLine();
+        ImGui::SetCursorPosY(orig_cursor_y);
+        ImGui::Text("%s", game_title.c_str());
+        ImGui::TextDisabled("%s", game_ver.c_str());
+        ImGui::TextDisabled("%s", rornet_ver.c_str());
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
