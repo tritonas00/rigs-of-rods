@@ -261,7 +261,7 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
-        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - ((game_title_size.x + logo_size) / 2.f));
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - ((game_title_size.x + logo_size) / 2.f) - ImGui::GetStyle().ItemSpacing.x);
         float orig_cursor_y = ImGui::GetCursorPosY();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 7); // align image with text
 
@@ -280,16 +280,18 @@ void GameMainMenu::DrawNoticeBox()
 {
     Ogre::TexturePtr tex = FetchIcon("accept.png");
 
-    const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
-    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
-    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION); // needed to align with VersionBox
+    const float margin = ImGui::GetIO().DisplaySize.y / 12.f;
+    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Version"), ROR_VERSION_STRING); // needed to align with VersionBox
+    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Network protocol"), RORNET_VERSION); // needed to align with VersionBox
     std::string cache_ntc = fmt::format("{}", _LC("MainMenu", "Cache updated"));
+    int logo_size = 35;
+
     float text_w = std::max(
         ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
     ImVec2 box_size(
         (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
-        (2 * ImGui::GetStyle().WindowPadding.y) + (4.5 * ImGui::GetTextLineHeight()));
-    ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(margin, margin)));
+        (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()) + logo_size);
+    ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(30, margin)));
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
     ImGuiWindowFlags flags =
