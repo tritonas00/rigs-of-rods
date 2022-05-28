@@ -90,6 +90,19 @@ private:
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
+
+    // Collision with actor:
+    Ogre::Vector3 vehicle_position;
+    Ogre::Radian vehicle_rotation;
+    Ogre::Vector3 last_vehicle_position;
+    Ogre::Radian last_vehicle_rotation;
+    bool inertia = false;
+    Ogre::Vector3 inertia_position;
+    Ogre::Radian inertia_rotation;
+    Actor* contacting_actor = nullptr;
+    int contacting_cab;
+    int last_contacting_cab;
+    Ogre::Vector3 CalcCabAveragePos(Actor* actor, int cab_index);
 };
 
 /// @} // addtogroup Character
@@ -122,4 +135,3 @@ struct GfxCharacter
 };
 
 } // namespace RoR
-
