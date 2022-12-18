@@ -84,6 +84,7 @@ public:
     int ai_mode_prev = 0;
 
     void Refresh(std::string payload);
+    bool kkk = false;
 
 private:
     void DrawActorListSinglePlayer();

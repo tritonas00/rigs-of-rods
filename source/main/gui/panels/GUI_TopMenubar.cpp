@@ -50,6 +50,9 @@
 #include <algorithm>
 #include <fmt/format.h>
 #include <rapidjson/document.h>
+#include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -64,6 +67,25 @@ using namespace RoR;
 using namespace GUI;
 
 #if defined(USE_CURL)
+
+
+void aaa()
+{
+    for (int i = 0; i < 1000; i++)
+    {
+        App::GetGuiManager()->TopMenubar.kkk = true;
+        sleep (15);
+
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+        {
+            if (actor->ar_driveable == AI)
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+            }
+        }
+        sleep (1);
+    }
+}
 
 static size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
 {
@@ -1157,9 +1179,16 @@ void TopMenubar::Update()
                     }
                     else
                     {
-                        App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
+                        std::packaged_task<void()> task(aaa);
+                        std::thread(std::move(task)).detach();
                     }
                 }
+            }
+
+            if (kkk)
+            {
+                kkk = false;
+                App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
             }
 
             if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
