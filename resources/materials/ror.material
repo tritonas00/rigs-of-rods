@@ -2863,42 +2863,45 @@ material tracks/endlessbasicwater
 	}
 }
 
+vertex_program myVertexShader1 glsl
+{
+    source example1.vert
+}
+
+fragment_program myFragmentShader1 glsl
+{
+    source example1.frag
+    default_params
+    {
+        param_named normalSampler int 0
+    }
+}
+
 material tracks/basicwater
 {
-	receive_shadows off 
-	technique
-	{
-		pass
-		{
-		   ambient 0.5 0.5 0.5
-		   //specular 0.5 0.5 1.0 10.0
-		   scene_blend modulate
-		   // double-sided
-		   cull_hardware none
-		   cull_software none
-		   depth_write off
-		   texture_unit
-		   {
-			  texture water.dds
-			  scroll_anim .01 .01
-		   }
-		 }
-		pass
-		{
-		   ambient 0.3 0.3 0.3
-		   specular 0.5 0.5 1.0 10.0
-		   scene_blend add
-		   // double-sided
-		   cull_hardware none
-		   cull_software none
-		   depth_write off
-		   texture_unit
-		   {
-			  texture water.dds
-			  scroll_anim -.01 -.01
-		   }
-		 }
-	}
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+
+            vertex_program_ref myVertexShader1
+            {
+                param_named_auto ModelMatrix world_matrix
+            }
+            fragment_program_ref myFragmentShader1
+            {
+                param_named_auto cameraPos camera_position
+                param_named_auto timer time
+            }
+
+            texture_unit
+            {
+                texture water-normal.png
+                filtering linear linear none
+            }
+        }
+    }
 }
 
 material tracks/otherbasicwater

@@ -303,7 +303,7 @@ void Water::PrepareWater()
         m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             m_water_plane,
-            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+            50000, 50000, WAVEREZ, WAVEREZ, true, 1, 1, 1, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "WaterPlane");
         m_waterplane_entity->setMaterialName("tracks/basicwater");
     }
@@ -625,7 +625,7 @@ void Water::FrameStepWater(float dt)
 {
     if (dt)
     {
-        this->UpdateWater();
+        //this->UpdateWater();
     }
 }
 
