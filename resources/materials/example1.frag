@@ -106,7 +106,7 @@ void main() {
 
     //fresnel term
     float ior = 1.33;
-    //ior = (cameraPos.z>0.0)?(1.333/1.0):(1.0/1.333); //air to water; water to air
+    //ior = (cameraPos.y>0.0)?(1.333/1.0):(1.0/1.333); //air to water; water to air
     ior = 1.333/1.0;
     float eta = max(ior, 0.00001);
     float fresnel = fresnel_dielectric(-vVec,nVec,eta);
@@ -131,8 +131,7 @@ void main() {
     float waterSunGradient = dot(normalize(worldPos), -normalize(sunPos));
     waterSunGradient = clamp(pow(waterSunGradient*0.7+0.3,2.0),0.0,1.0);  
     vec3 waterSunColor = vec3(0.0,1.0,0.85)*waterSunGradient;
-    //waterSunColor = (cameraPos.z<0.0)?waterSunColor*0.5:waterSunColor*0.25;//below or above water?
-    waterSunColor = waterSunColor*0.5;
+    waterSunColor = (cameraPos.y<0.0)?waterSunColor*0.5:waterSunColor*0.25;//below or above water?
    
     float waterGradient = dot(normalize(worldPos), vec3(0.0,0.0,-1.0));
     waterGradient = clamp((waterGradient*0.5+0.5),0.2,1.0);

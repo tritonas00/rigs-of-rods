@@ -2884,6 +2884,8 @@ material tracks/basicwater
         pass
         {
             scene_blend alpha_blend
+            cull_hardware none
+            cull_software none
 
             vertex_program_ref myVertexShader1
             {
@@ -2891,13 +2893,13 @@ material tracks/basicwater
             }
             fragment_program_ref myFragmentShader1
             {
-                param_named_auto cameraPos camera_position
+                param_named_auto cameraPos camera_position_object_space
                 param_named_auto timer time
             }
 
             texture_unit
             {
-                texture water-normal.png
+                texture WaterNormal1.tga
                 filtering linear linear none
             }
         }
