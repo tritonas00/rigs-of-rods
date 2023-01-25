@@ -2895,6 +2895,7 @@ material tracks/basicwater
             {
                 param_named_auto cameraPos camera_position_object_space
                 param_named_auto timer time
+                param_named color_density float 0.5
             }
 
             texture_unit

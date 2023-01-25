@@ -2,6 +2,7 @@ varying vec3 viewPos, worldPos;
 uniform float timer;
 uniform sampler2D normalSampler;
 uniform vec3 cameraPos;
+uniform float color_density;
 
 //tweakables
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
@@ -139,7 +140,7 @@ void main() {
     vec3 waterext = vec3(0.6, 0.8, 1.0);//water extinction
     //watercolor = mix(watercolor*0.3*sunFade, watercolor, clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
 
-    refraction = mix(mix(refraction, watercolor, 0.5), scatterColor, lightScatter);
+    refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
     vec3 color = mix(refraction, reflection, fresnel * 0.6);
     gl_FragColor = vec4(vec3(color+(specColor*specular)),0.9);

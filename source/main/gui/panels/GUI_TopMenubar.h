@@ -103,6 +103,8 @@ private:
 
     void GetPresets();
     rapidjson::Document j_doc;
+
+    float m_water_color = 0.5;
 };
 
 } // namespace GUI

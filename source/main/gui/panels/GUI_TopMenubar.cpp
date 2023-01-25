@@ -583,6 +583,23 @@ void TopMenubar::Update()
                     ImGui::PopID();
                 }
             }    
+
+            if (App::GetGameContext()->GetTerrain()->getWater() && App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::BASIC)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Water:"));
+                if(ImGui::SliderFloat("Color", &m_water_color, 0.f, 1.f, ""))
+                {
+                    ImGui::PushID("color");
+
+                    Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("tracks/basicwater", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                    Ogre::GpuProgramParametersSharedPtr params = material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+                    params->setNamedConstant("color_density", m_water_color);
+                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+
+                    ImGui::PopID();
+                }
+            }
             
             if (current_actor != nullptr)
             {
