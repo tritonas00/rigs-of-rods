@@ -162,6 +162,14 @@ void GfxScene::UpdateScene(float dt_sec)
     if (sky != nullptr)
     {
         sky->DetectSkyUpdate();
+
+        if (App::GetGameContext()->GetTerrain()->getWater() && App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::BASIC)
+        {
+            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("tracks/basicwater", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            Ogre::GpuProgramParametersSharedPtr params = material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+            params->setNamedConstant("sun_color", sky->GetCaelumSys()->getSun()->getBodyColour());
+            material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+        }
     }
 #endif
 

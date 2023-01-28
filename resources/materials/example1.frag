@@ -3,6 +3,7 @@ uniform float timer;
 uniform sampler2D normalSampler;
 uniform vec3 cameraPos;
 uniform float color_density;
+uniform vec3 sun_color;
 
 //tweakables
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
@@ -122,7 +123,7 @@ void main() {
     vec3 R = reflect(vVec, nVec);
 
     float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
-    vec3 specColor = mix(vec3(1.0,0.5,0.2), vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
+    vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
 
 
     vec3 refraction = vec3(0,0,0);
