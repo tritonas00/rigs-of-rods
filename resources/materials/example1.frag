@@ -2,7 +2,10 @@ varying vec3 viewPos, worldPos;
 uniform float timer;
 uniform sampler2D normalSampler;
 uniform vec3 cameraPos;
+
 uniform float color_density;
+uniform float water_opacity;
+uniform float light_scattering;
 uniform vec3 sun_color;
 
 //tweakables
@@ -118,7 +121,7 @@ void main() {
     vec3 reflection = vec3(1,1,1);
 
     vec3 luminosity = vec3(0.30, 0.59, 0.11);
-    float reflectivity = pow(dot(luminosity, reflection*2.0),3.0);
+    float reflectivity = pow(dot(luminosity, reflection*2.0),light_scattering);
     float reflectivity1 = pow(dot(luminosity, reflection),3.0);
     vec3 R = reflect(vVec, nVec);
 
@@ -144,5 +147,5 @@ void main() {
     refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
     vec3 color = mix(refraction, reflection, fresnel * 0.6);
-    gl_FragColor = vec4(vec3(color+(specColor*specular)),0.9);
+    gl_FragColor = vec4(vec3(color+(specColor*specular)),water_opacity);
 }

@@ -2896,6 +2896,8 @@ material tracks/basicwater
                 param_named_auto cameraPos camera_position_object_space
                 param_named_auto timer time
                 param_named color_density float 0.5
+                param_named water_opacity float 0.9
+                param_named light_scattering float 3.0
                 param_named sun_color float3 1.0 0.5 0.2
             }
 
