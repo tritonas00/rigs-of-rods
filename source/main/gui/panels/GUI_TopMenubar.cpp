@@ -591,21 +591,21 @@ void TopMenubar::Update()
 
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Water:"));
-                if(ImGui::SliderFloat("Color", &m_water_color, 0.f, 1.f, ""))
+                if (ImGui::SliderFloat("Color", &m_water_color, 0.f, 1.f, ""))
                 {
                     ImGui::PushID("color");
                     params->setNamedConstant("color_density", m_water_color);
                     material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
                     ImGui::PopID();
                 }
-                if(ImGui::SliderFloat("Opacity", &m_water_opacity, 0.f, 1.f, ""))
+                if (ImGui::SliderFloat("Opacity", &m_water_opacity, 0.f, 1.f, ""))
                 {
                     ImGui::PushID("opacity");
                     params->setNamedConstant("water_opacity", m_water_opacity);
                     material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
                     ImGui::PopID();
                 }
-                if(ImGui::SliderFloat("Scattering", &m_water_scattering, 0.f, 10.f, ""))
+                if (ImGui::SliderFloat("Scattering", &m_water_scattering, 0.f, 10.f, ""))
                 {
                     ImGui::PushID("scattering");
                     params->setNamedConstant("light_scattering", m_water_scattering);
