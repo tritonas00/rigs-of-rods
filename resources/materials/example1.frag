@@ -12,7 +12,7 @@ uniform vec3 sun_color;
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
 float windSpeed = 0.2; //wind speed
 float visibility = 28.0;
-float scale = 1000.0; //overall wave scale
+float scale = 5000.0; //overall wave scale
 vec2 bigWaves = vec2(0.3, 0.3); //strength of big waves
 vec2 midWaves = vec2(0.3, 0.15); //strength of middle sized waves
 vec2 smallWaves = vec2(0.15, 0.1); //strength of small waves
@@ -61,7 +61,7 @@ void main() {
     bump = -bump*clamp(1.0-coast+0.0,0.0,1.0);
     bump = bump*clamp(1.0-coast1+0.0,0.0,1.0);
     
-    float time = (timer - (coast)*80.0)*0.5; //hmmm
+    float time = timer - (coast)*80.0; //hmmm
 
     nCoord = worldPos.xy * (scale * 0.04) + windDir * time * (windSpeed*0.04);
     vec3 normal0 = 2.0 * texture2D(normalSampler, nCoord + vec2(-time*0.015,-time*0.005)).rgb - 1.0;
@@ -100,13 +100,13 @@ void main() {
     lNormal = mix(lNormal.xzy, vec3(0, 1, 0), 0.1);
     vec3 lR = reflect(lVec, lNormal);
 
-    float sunFade = clamp((sunPos.z+10.0)/20.0,0.0,1.0);
-    float scatterFade = clamp((sunPos.z+50.0)/200.0,0.0,1.0);
+    float sunFade = clamp((sunPos.y+10.0)/20.0,0.0,1.0);
+    float scatterFade = clamp((sunPos.y+50.0)/200.0,0.0,1.0);
     vec3 sunext = vec3(0.45, 0.55, 0.68);//sunlight extinction
 
     float s = clamp((dot(lR, vVec)*2.0-1.2), 0.0,1.0);
-    float lightScatter = clamp((clamp(dot(-lVec,lNormal)*0.7+0.3,0.0,1.0)*s)*scatterAmount,0.0,1.0)*sunFade *clamp(1.0-exp(-(sunPos.z/500.0)),0.0,1.0);
-    scatterColor = mix(vec3(scatterColor)*vec3(1.0,0.4,0.0), scatterColor, clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
+    float lightScatter = clamp((clamp(dot(-lVec,lNormal)*0.7+0.3,0.0,1.0)*s)*scatterAmount,0.0,1.0)*sunFade *clamp(1.0-exp(-(sunPos.y)),0.0,1.0);
+    scatterColor = mix(vec3(scatterColor)*vec3(1.0,0.4,0.0), scatterColor, clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));
 
 
     //fresnel term
@@ -126,7 +126,7 @@ void main() {
     vec3 R = reflect(vVec, nVec);
 
     float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
-    vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
+    vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));
 
 
     vec3 refraction = vec3(0,0,0);
@@ -142,7 +142,7 @@ void main() {
     waterGradient = clamp((waterGradient*0.5+0.5),0.2,1.0);
     vec3 watercolor = (vec3(0.0078, 0.5176, 0.700)+waterSunColor)*waterGradient*1.5;
     vec3 waterext = vec3(0.6, 0.8, 1.0);//water extinction
-    //watercolor = mix(watercolor*0.3*sunFade, watercolor, clamp(1.0-exp(-(sunPos.z/500.0)*sunext),0.0,1.0));
+    watercolor = mix(watercolor*0.3*sunFade, watercolor, clamp(1.0-exp(-(sunPos.y*10.0)*sunext),0.0,1.0));
 
     refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
