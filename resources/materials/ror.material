@@ -2890,6 +2890,8 @@ material tracks/basicwater
             vertex_program_ref myVertexShader1
             {
                 param_named_auto ModelMatrix world_matrix
+                param_named_auto worldMatrix worldviewproj_matrix
+                param_named_auto textureProjMatrix texture_worldviewproj_matrix 0
             }
             fragment_program_ref myFragmentShader1
             {
@@ -2898,6 +2900,7 @@ material tracks/basicwater
                 param_named color_density float 0.5
                 param_named water_opacity float 0.9
                 param_named light_scattering float 3.0
+                param_named water_distortion float 2.0
                 param_named sun_color float3 1.0 0.5 0.2
             }
 

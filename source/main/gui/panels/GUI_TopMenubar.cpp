@@ -612,6 +612,13 @@ void TopMenubar::Update()
                     material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
                     ImGui::PopID();
                 }
+                if (ImGui::SliderFloat("Distortion", &m_water_distortion, 2.0f, 4.0f, ""))
+                {
+                    ImGui::PushID("distortion");
+                    params->setNamedConstant("water_distortion", m_water_distortion);
+                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    ImGui::PopID();
+                }
             }
             
             if (current_actor != nullptr)

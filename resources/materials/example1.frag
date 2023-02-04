@@ -6,13 +6,14 @@ uniform vec3 cameraPos;
 uniform float color_density;
 uniform float water_opacity;
 uniform float light_scattering;
+uniform float water_distortion;
 uniform vec3 sun_color;
 
 //tweakables
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
 float windSpeed = 0.2; //wind speed
 float visibility = 28.0;
-float scale = 5000.0; //overall wave scale
+float scale = 1000.0; //overall wave scale
 vec2 bigWaves = vec2(0.3, 0.3); //strength of big waves
 vec2 midWaves = vec2(0.3, 0.15); //strength of middle sized waves
 vec2 smallWaves = vec2(0.15, 0.1); //strength of small waves
@@ -86,7 +87,7 @@ void main() {
 
 
 
-    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), 0.1); // converting normals to tangent space 
+    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), water_distortion); // converting normals to tangent space 
     vec3 vVec = normalize(viewPos);
     vec3 lVec = normalize(sunPos);
 
@@ -97,7 +98,7 @@ void main() {
 						    normal4 * smallWaves.x*0.1 + normal5 * smallWaves.y*0.1);
 
 
-    lNormal = mix(lNormal.xzy, vec3(0, 1, 0), 0.1);
+    lNormal = mix(lNormal.xzy, vec3(0, 1, 0), water_distortion);
     vec3 lR = reflect(lVec, lNormal);
 
     float sunFade = clamp((sunPos.y+10.0)/20.0,0.0,1.0);

@@ -107,6 +107,7 @@ private:
     float m_water_color = 0.5;
     float m_water_opacity = 0.9;
     float m_water_scattering = 3.0;
+    float m_water_distortion = 2.0;
 };
 
 } // namespace GUI
