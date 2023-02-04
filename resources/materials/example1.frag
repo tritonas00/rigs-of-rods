@@ -153,7 +153,7 @@ void main() {
     refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
     vec4 color = mix(vec4(refraction, 1.0-normalFade), vec4(reflection, 1.0-normalFade), fresnel * 0.6);
-    color.a -= 0.5 - water_opacity;
+    color.a -= 0.2 - water_opacity;
 
-    gl_FragColor = color+(vec4(specColor,1.0- normalFade)*specular);
+    gl_FragColor = color+(vec4(specColor, 1.0-normalFade)*specular);
 }
