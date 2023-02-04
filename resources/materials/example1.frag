@@ -1,12 +1,16 @@
+varying vec4 projectionCoord;
 varying vec3 viewPos, worldPos;
 uniform float timer;
 uniform sampler2D normalSampler;
 uniform vec3 cameraPos;
 
+// UI options
 uniform float color_density;
 uniform float water_opacity;
 uniform float light_scattering;
 uniform float water_distortion;
+
+// Caelum sun color
 uniform vec3 sun_color;
 
 //tweakables
@@ -86,8 +90,9 @@ void main() {
 						    normal4 * smallWaves.x + normal5 * smallWaves.y);
 
 
+    float normalFade = 1.0 - min(exp(-projectionCoord.w / 1000.0), 1.0);    
 
-    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), water_distortion); // converting normals to tangent space 
+    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), normalFade-water_distortion); // converting normals to tangent space 
     vec3 vVec = normalize(viewPos);
     vec3 lVec = normalize(sunPos);
 
@@ -98,7 +103,7 @@ void main() {
 						    normal4 * smallWaves.x*0.1 + normal5 * smallWaves.y*0.1);
 
 
-    lNormal = mix(lNormal.xzy, vec3(0, 1, 0), water_distortion);
+    lNormal = mix(lNormal.xzy, vec3(0, 1, 0), normalFade-water_distortion);
     vec3 lR = reflect(lVec, lNormal);
 
     float sunFade = clamp((sunPos.y+10.0)/20.0,0.0,1.0);
@@ -147,6 +152,8 @@ void main() {
 
     refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
-    vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, water_opacity), fresnel * 0.6);
-    gl_FragColor = color+(vec4(specColor,1.0)*specular);
+    vec4 color = mix(vec4(refraction, 1.0-normalFade), vec4(reflection, 1.0-normalFade), fresnel * 0.6);
+    color.a -= 0.5 - water_opacity;
+
+    gl_FragColor = color+(vec4(specColor,1.0- normalFade)*specular);
 }
