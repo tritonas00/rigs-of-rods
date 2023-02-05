@@ -129,7 +129,8 @@ void main() {
     vec3 luminosity = vec3(0.30, 0.59, 0.11);
     float reflectivity = pow(dot(luminosity, reflection*2.0),light_scattering);
     float reflectivity1 = pow(dot(luminosity, reflection),3.0);
-    vec3 R = reflect(vVec, nVec);
+    vec3 nVec2 = mix(normal.xzy, vec3(0, 1, 0), 1.5+water_distortion); // converting normals to tangent space
+    vec3 R = reflect(vVec, nVec2);
 
     float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
     vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));
@@ -152,8 +153,7 @@ void main() {
 
     refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
 
-    vec4 color = mix(vec4(refraction, 1.0-normalFade), vec4(reflection, 1.0-normalFade), fresnel * 0.6);
-    color.a -= 0.2 - water_opacity;
+    vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, water_opacity), fresnel * 0.6);
 
-    gl_FragColor = color+(vec4(specColor, 1.0-normalFade)*specular);
+    gl_FragColor = color+(vec4(specColor, 1.0)*specular);
 }
