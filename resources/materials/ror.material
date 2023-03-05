@@ -2892,6 +2892,7 @@ material tracks/basicwater
                 param_named_auto ModelMatrix world_matrix
                 param_named_auto WorldMatrix worldviewproj_matrix
                 param_named_auto eyePosition camera_position_object_space
+                param_named_auto cameraPos camera_position_object_space
             }
             fragment_program_ref myFragmentShader1
             {

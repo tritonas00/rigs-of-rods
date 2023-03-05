@@ -155,5 +155,17 @@ void main() {
 
     vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, 1.0), fresnel * 0.6);
 
+    // Smooth plane edge
+    if (cameraPos.y < 2.0)
+    {
+        color.a = clamp((projectionCoord.z), 0.0, water_opacity);
+    }
+    // Underwater
+    if (cameraPos.y < 0.0)
+    {
+        float a = clamp((-cameraPos.y), 0.0, water_opacity);
+        color = mix(vec4(refraction, a), vec4(reflection, a), 0.0);
+    }
+
     gl_FragColor = color+(vec4(specColor, 1.0)*specular);
 }

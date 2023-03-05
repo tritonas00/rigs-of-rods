@@ -5,6 +5,7 @@ uniform mat4 WorldMatrix;
 varying vec3 viewPos, worldPos;
 varying vec4 projectionCoord;
 uniform vec3 eyePosition;
+uniform vec3 cameraPos;
 
 void main()
 {
@@ -16,4 +17,9 @@ void main()
     viewPos = pos - eyePosition;
 
     gl_Position = WorldMatrix * vertex;
+
+    if (cameraPos.y < 0.0)
+    {
+        gl_Position = vec4(vertex.xzy, 1.0);
+    }
 }
