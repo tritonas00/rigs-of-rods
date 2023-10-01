@@ -2901,13 +2901,13 @@ material tracks/basicwater
                 param_named color_density float 0.5
                 param_named water_opacity float 0.9
                 param_named light_scattering float 3.0
-                param_named water_distortion float 0.0
+                param_named water_distortion float 0.6
                 param_named sun_color float3 1.0 0.5 0.2
             }
 
             texture_unit
             {
-                texture WaterNormal1.tga
+                texture water-normal.jpeg
                 filtering linear linear none
             }
         }
