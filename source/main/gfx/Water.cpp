@@ -121,12 +121,12 @@ Water::~Water()
         m_waterplane_node = nullptr;
     }
 
-    if (m_bottomplane_node != nullptr)
-    {
-        App::GetGfxScene()->GetSceneManager()->destroyEntity("bplane");
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
-        m_bottomplane_node = nullptr;
-    }
+    //if (m_bottomplane_node != nullptr)
+    //{
+       // App::GetGfxScene()->GetSceneManager()->destroyEntity("bplane");
+        //App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
+        //m_bottomplane_node = nullptr;
+    //}
 
     m_water_height = m_bottom_height = 0;
 
@@ -291,7 +291,7 @@ void Water::PrepareWater()
         m_waterplane_mesh = MeshManager::getSingleton().createPlane("ReflectPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             m_water_plane,
-            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+            50000, 50000, WAVEREZ, WAVEREZ, true, 1, 1, 1, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
         m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "ReflectPlane");
         if (full_gfx)
@@ -318,20 +318,20 @@ void Water::PrepareWater()
     m_waterplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
     //bottom
-    m_bottom_plane.normal = Vector3::UNIT_Y;
-    m_bottom_plane.d = -m_bottom_height; //30m below waterline
-    MeshManager::getSingleton().createPlane("BottomPlane",
-        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-        m_bottom_plane,
-        m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
-    Entity* pE = App::GetGfxScene()->GetSceneManager()->createEntity("bplane", "BottomPlane");
-    pE->setMaterialName("tracks/seabottom");
-    pE->setCastShadows(false);
+    //m_bottom_plane.normal = Vector3::UNIT_Y;
+    //m_bottom_plane.d = -m_bottom_height; //30m below waterline
+    //MeshManager::getSingleton().createPlane("BottomPlane",
+        //ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+        //m_bottom_plane,
+        //m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
+    //Entity* pE = App::GetGfxScene()->GetSceneManager()->createEntity("bplane", "BottomPlane");
+    //pE->setMaterialName("tracks/seabottom");
+    //pE->setCastShadows(false);
 
     //position
-    m_bottomplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
-    m_bottomplane_node->attachObject(pE);
-    m_bottomplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, 0, (m_map_size.z * m_waterplane_mesh_scale) / 2));
+    //m_bottomplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
+    //m_bottomplane_node->attachObject(pE);
+    //m_bottomplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, 0, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
     //setup for waves
     m_waterplane_vert_buf = m_waterplane_mesh->sharedVertexData->vertexBufferBinding->getBuffer(0);
@@ -352,8 +352,8 @@ void Water::SetWaterVisible(bool value)
         m_waterplane_entity->setVisible(value);
     if (m_waterplane_node)
         m_waterplane_node->setVisible(value);
-    if (m_bottomplane_node)
-        m_bottomplane_node->setVisible(value);
+    //if (m_bottomplane_node)
+        //m_bottomplane_node->setVisible(value);
 }
 
 void Water::SetReflectionPlaneHeight(float centerheight)
@@ -437,10 +437,10 @@ void Water::UpdateWater()
         Vector3 waterPos = water_cam_pos + (sightPos - water_cam_pos).normalisedCopy() * offset;
         Vector3 bottomPos = Vector3(waterPos.x, m_bottom_height, waterPos.z);
 
-        if (waterPos.distance(m_waterplane_node->getPosition()) > 200.0f || m_waterplane_force_update_pos)
+        if (m_waterplane_force_update_pos)
         {
-            m_waterplane_node->setPosition(Vector3(waterPos.x, m_water_height, waterPos.z));
-            m_bottomplane_node->setPosition(bottomPos);
+            m_waterplane_node->setPosition(Vector3(water_cam_pos));
+            //m_bottomplane_node->setPosition(bottomPos);
         }
         if (RoR::App::gfx_water_waves->getBool() && RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::DISABLED)
             this->ShowWave(m_waterplane_node->getPosition());

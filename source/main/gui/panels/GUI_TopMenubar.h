@@ -117,6 +117,13 @@ private:
 
     void GetPresets();
     rapidjson::Document j_doc;
+
+    float m_water_color = 0.5;
+    float m_water_opacity = 1.0;
+    float m_water_scattering = 0.5;
+    float m_water_distortion = 0.6;
+    float m_water_reflection = 0.0;
+    float m_water_refraction = 0.9;
 };
 
 } // namespace GUI
