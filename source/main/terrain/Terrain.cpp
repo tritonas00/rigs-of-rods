@@ -285,12 +285,12 @@ void RoR::Terrain::initSkySubSystem()
         if (!m_def.cubemap_config.empty())
         {
             // use custom
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 100, true);
+            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 50000, true);
         }
         else
         {
             // use default
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
+            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 50000, true);
         }
     }
 }
