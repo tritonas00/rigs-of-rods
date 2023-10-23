@@ -11,6 +11,7 @@ uniform float light_scattering;
 uniform float water_distortion;
 uniform float water_reflection;
 uniform float water_refraction;
+uniform float water_scale;
 
 // Caelum sun color
 uniform vec3 sun_color;
@@ -22,7 +23,7 @@ varying vec3 viewPos, worldPos;
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
 float windSpeed = 0.2; //wind speed
 float visibility = 28.0;
-float scale = 1000.0; //overall wave scale
+float scale = water_scale; //overall wave scale
 vec2 bigWaves = vec2(0.3, 0.3); //strength of big waves
 vec2 midWaves = vec2(0.3, 0.15); //strength of middle sized waves
 vec2 smallWaves = vec2(0.15, 0.1); //strength of small waves

@@ -602,6 +602,13 @@ void TopMenubar::Update()
 
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Water:"));
+                if (ImGui::SliderFloat("Scale", &m_water_scale, 1000.f, 10000.f, ""))
+                {
+                    ImGui::PushID("scale");
+                    params->setNamedConstant("water_scale", m_water_scale);
+                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    ImGui::PopID();
+                }
                 if (ImGui::SliderFloat("Color", &m_water_color, 0.f, 1.f, ""))
                 {
                     ImGui::PushID("color");
