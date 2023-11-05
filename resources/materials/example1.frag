@@ -3,6 +3,7 @@ uniform sampler2D reflectMap;
 uniform sampler2D refractMap;
 uniform float timer;
 uniform vec3 cameraPos;
+uniform vec4 lightPos;
 
 // UI options
 uniform float color_density;
@@ -35,7 +36,7 @@ float bump = 2.6; //overall water surface bumpyness
 float reflBump = 0.04; //reflection distortion amount
 float refrBump = 0.03; //refraction distortion amount
 
-vec3 sunPos = vec3(gl_ModelViewMatrixInverse*gl_LightSource[0].position);
+vec3 sunPos = vec3(lightPos);
 float sunSpec = 1000.0; //Sun specular hardness
 float scatterAmount = 3.5; //amount of sunlight scattering of waves
 vec3 scatterColor = vec3(0.0,1.0,0.95);// color of the sunlight scattering
