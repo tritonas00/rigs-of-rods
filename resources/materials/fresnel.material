@@ -25,14 +25,41 @@ fragment_program Examples/FresnelRefractReflectPS asm
 
 }
 
-vertex_program myVertexShader1 glsl
+vertex_program WaterHLSLVertex hlsl
 {
-    source example1.vert
+    source WaterHLSL.vert
+    entry_point mainVP
+    target vs_3_0
+
+    default_params
+    {
+        param_named_auto worldViewProjMatrix worldviewproj_matrix
+        param_named_auto cameraPos camera_position_object_space
+    }
 }
 
-fragment_program myFragmentShader1 glsl
+fragment_program WaterHLSLFragment hlsl
 {
-    source example1.frag
+    source WaterHLSL.frag
+    entry_point mainFP
+    target ps_3_0
+}
+
+vertex_program WaterGLSLVertex glsl
+{
+    source WaterGLSL.vert
+
+    default_params
+    {
+        param_named_auto worldViewProjMatrix worldviewproj_matrix
+        param_named_auto cameraPos camera_position_object_space
+    }
+}
+
+fragment_program WaterGLSLFragment glsl
+{
+    source WaterGLSL.frag
+
     default_params
     {
         param_named normalMap int 0
@@ -41,59 +68,71 @@ fragment_program myFragmentShader1 glsl
     }
 }
 
+vertex_program WaterVS unified
+{
+    delegate WaterHLSLVertex
+    delegate WaterGLSLVertex
+}
+
+fragment_program WaterFS unified
+{
+    delegate WaterHLSLFragment
+    delegate WaterGLSLFragment
+}
+
 material Examples/FresnelReflectionRefraction
 {
-	technique
-	{
-		pass 
-		{
-                	scene_blend alpha_blend
-            		cull_hardware none
-            		cull_software none
-			
-			vertex_program_ref myVertexShader1
-			{
-				param_named_auto worldViewProjMatrix worldviewproj_matrix
-                		param_named_auto cameraPos camera_position_object_space
-				param_named_auto timeVal time 0.05
-			}
-			fragment_program_ref myFragmentShader1
-			{
-                		param_named_auto cameraPos camera_position_object_space
-                		param_named_auto lightPos light_position 0
-                		param_named_auto timer time
-                		param_named color_density float 0.5
-                		param_named water_opacity float 1.0
-                		param_named light_scattering float 0.5
-                		param_named water_distortion float 0.6
-                		param_named sun_color float3 1.0 0.5 0.2
-                		param_named water_reflection float 0.0
-                		param_named water_refraction float 0.9
-                		param_named water_scale float 1000.0
-			}
-			// Normal
-			texture_unit
-			{
-				texture water-normal.jpeg
-				// min / mag filtering, no mip
-				filtering linear linear none
-			}
-			// Reflection
-			texture_unit
-			{
-				// Will be filled in at runtime
-				texture Reflection
-				tex_address_mode clamp
-			}
-			// Refraction
-			texture_unit
-			{
-				// Will be filled in at runtime
-				texture Refraction
-				tex_address_mode clamp
-			}
-		}
-	}
+    technique
+    {
+        pass 
+        {
+            scene_blend alpha_blend
+            cull_hardware none
+            cull_software none
+
+            vertex_program_ref WaterVS
+            {
+            }
+            fragment_program_ref WaterFS
+            {
+                param_named_auto cameraPos camera_position_object_space
+                param_named_auto lightPos light_position 0
+                param_named_auto timer time
+                param_named color_density float 0.5
+                param_named water_opacity float 1.0
+                param_named light_scattering float 0.5
+                param_named water_distortion float 0.6
+                param_named sun_color float3 1.0 0.5 0.2
+                param_named water_reflection float 0.0
+                param_named water_refraction float 0.9
+                param_named water_scale float 1000.0
+            }
+            // Normal
+            texture_unit
+            {
+                texture water-normal.jpeg
+                // min / mag filtering, no mip
+                filtering linear linear none
+                tex_coord_set 0
+            }
+            // Reflection
+            texture_unit
+            {
+                // Will be filled in at runtime
+                texture Reflection
+                tex_address_mode clamp
+                tex_coord_set 1
+            }
+            // Refraction
+            texture_unit
+            {
+                // Will be filled in at runtime
+                texture Refraction
+                tex_address_mode clamp
+                tex_coord_set 2
+            }
+        }
+    }
 }
 
 material Examples/FresnelReflectionRefractioninverted
