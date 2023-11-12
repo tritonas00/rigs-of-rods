@@ -19,6 +19,7 @@ uniform vec3 sun_color;
 
 varying vec4 projectionCoord;
 varying vec3 viewPos, worldPos;
+varying vec4 ppos;
 
 //tweakables
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
@@ -186,4 +187,15 @@ void main()
     }
 
     gl_FragColor = color+(vec4(specColor, 1.0)*specular);
+
+    // Fog
+    vec3 alteredPixelPosition = vec3(ppos.x, 0.0, ppos.z);
+    const float alphaStart = 1500.0;
+    const float alphaEnd = 5000.0;
+    float distanceFromCamera = length(alteredPixelPosition);
+
+    if (cameraPos.y >= 2.0)
+    {
+        gl_FragColor.a = clamp((alphaEnd - distanceFromCamera) / (alphaEnd - alphaStart), 0.0, water_opacity);
+    }
 }

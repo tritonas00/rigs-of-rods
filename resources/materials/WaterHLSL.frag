@@ -22,6 +22,7 @@ float4 mainFP(
     float3 viewPos : TEXCOORD0,
     float3 worldPos : TEXCOORD1,
     float4 projectionCoord : TEXCOORD2,
+    float4 ppos : TEXCOORD3,
     uniform sampler2D normalMap : register(s0),
     uniform sampler2D reflectMap : register(s1),
     uniform sampler2D refractMap : register(s2),
@@ -186,5 +187,18 @@ float4 mainFP(
         color = lerp(float4(refraction, a), float4(reflection, a), 0.0);
     }
 
-    return color+(float4(specColor, 1.0)*specular);
+    float4 col = color+(float4(specColor, 1.0)*specular);
+
+    // Fog
+    float3 alteredPixelPosition = float3(ppos.x, 0.0, ppos.z);
+    const float alphaStart = 1500.0;
+    const float alphaEnd = 5000.0;
+    float distanceFromCamera = length(alteredPixelPosition);
+
+    if (cameraPos.y >= 2.0)
+    {
+        col.a = clamp((alphaEnd - distanceFromCamera) / (alphaEnd - alphaStart), 0.0, water_opacity);
+    }
+
+    return col;
 }

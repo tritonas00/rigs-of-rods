@@ -6,6 +6,7 @@ uniform vec3 cameraPos;
 
 varying vec3 viewPos, worldPos;
 varying vec4 projectionCoord;
+varying vec4 ppos;
 
 void main()
 {
@@ -27,4 +28,5 @@ void main()
 
     worldPos = vec3(uv0);
     viewPos = position.xyz - cameraPos;
+    ppos = position;
 }

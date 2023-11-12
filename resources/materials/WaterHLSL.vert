@@ -5,7 +5,8 @@ float4 mainVP(
     uniform float3 cameraPos,
     out float3 viewPos : TEXCOORD0,
     out float3 worldPos : TEXCOORD1,
-    out float4 projectionCoord : TEXCOORD2
+    out float4 projectionCoord : TEXCOORD2,
+    out float4 ppos : TEXCOORD3
 
 ) : POSITION
 {   
@@ -27,6 +28,7 @@ float4 mainVP(
 
     worldPos = uv0.xyz;
     viewPos = position.xyz - cameraPos;
+    ppos = position;
 
     return oPos;
 }
