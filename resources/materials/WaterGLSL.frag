@@ -26,7 +26,7 @@ vec2 windDir = vec2(0.5, -0.8); //wind direction XY
 float windSpeed = 0.2; //wind speed
 float visibility = 28.0;
 float scale = water_scale; //overall wave scale
-vec2 bigWaves = vec2(0.3, 0.3); //strength of big waves
+vec2 bigWaves = vec2(4.3, 4.3); //strength of big waves
 vec2 midWaves = vec2(0.3, 0.15); //strength of middle sized waves
 vec2 smallWaves = vec2(0.15, 0.1); //strength of small waves
 vec3 waterColor = vec3(0.2,0.4,0.5); //color of the water
@@ -151,8 +151,7 @@ void main()
     vec3 luminosity = vec3(1.30, 0.59, 0.11);
     float reflectivity = pow(dot(luminosity, reflection*2.0),light_scattering);
     float reflectivity1 = pow(dot(luminosity, reflection),3.0);
-    vec3 nVec2 = mix(normal.xzy, vec3(0, 1, 0), 1.5+water_distortion); // converting normals to tangent space
-    vec3 R = reflect(vVec, nVec2);
+    vec3 R = reflect(vVec, nVec);
 
     float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
     vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));

@@ -110,9 +110,9 @@ material Examples/FresnelReflectionRefraction
             // Normal
             texture_unit
             {
-                texture water-normal.jpeg
+                texture water-normal.png
                 // min / mag filtering, no mip
-                filtering linear linear none
+                filtering linear linear linear
                 tex_coord_set 0
             }
             // Reflection

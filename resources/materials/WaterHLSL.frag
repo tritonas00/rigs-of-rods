@@ -48,7 +48,7 @@ float4 mainFP(
     float windSpeed = 0.2; //wind speed
     float visibility = 28.0;
     float scale = water_scale; //overall wave scale
-    float2 bigWaves = float2(0.3, 0.3); //strength of big waves
+    float2 bigWaves = float2(4.3, 4.3); //strength of big waves
     float2 midWaves = float2(0.3, 0.15); //strength of middle sized waves
     float2 smallWaves = float2(0.15, 0.1); //strength of small waves
     float3 waterColor = float3(0.2,0.4,0.5); //color of the water
@@ -152,8 +152,7 @@ float4 mainFP(
     float3 luminosity = float3(1.30, 0.59, 0.11);
     float reflectivity = pow(dot(luminosity, reflection*2.0),light_scattering);
     float reflectivity1 = pow(dot(luminosity, reflection),3.0);
-    float3 nVec2 = lerp(normal.xzy, float3(0, 1, 0), 1.5+water_distortion); // converting normals to tangent space
-    float3 R = reflect(vVec, nVec2);
+    float3 R = reflect(vVec, nVec);
 
     float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
     float3 specColor = lerp(sun_color, float3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));
