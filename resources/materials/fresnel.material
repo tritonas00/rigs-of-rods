@@ -65,6 +65,8 @@ fragment_program WaterGLSLFragment glsl
         param_named normalMap int 0
         param_named reflectMap int 1
         param_named refractMap int 2
+        param_named depthMap int 3
+        param_named foamMap int 4
     }
 }
 
@@ -100,12 +102,16 @@ material Examples/FresnelReflectionRefraction
                 param_named_auto timer time
                 param_named color_density float 0.5
                 param_named water_opacity float 1.0
-                param_named light_scattering float 0.5
+                param_named water_specular float 1.0
                 param_named water_distortion float 0.6
                 param_named sun_color float3 1.0 0.5 0.2
                 param_named water_reflection float 0.0
                 param_named water_refraction float 0.9
-                param_named water_scale float 1000.0
+                param_named water_depth float 0.1
+                param_named water_caustics float 0.5
+                param_named water_foam float 0.5
+                param_named water_scale float 5000.0
+                param_named water_color float3 0.0078, 0.5176, 0.700
             }
             // Normal
             texture_unit
@@ -130,6 +136,22 @@ material Examples/FresnelReflectionRefraction
                 texture Refraction
                 tex_address_mode clamp
                 tex_coord_set 2
+            }
+            // RefractionDepth
+            texture_unit
+            {
+                // Will be filled in at runtime
+                texture RefractionDepth
+                tex_address_mode clamp
+                tex_coord_set 3
+            }
+            // Foam
+            texture_unit
+            {
+                texture foam-pattern.png
+                // min / mag filtering, no mip
+                filtering linear linear linear
+                tex_coord_set 4
             }
         }
     }

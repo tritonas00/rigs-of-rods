@@ -597,58 +597,79 @@ void TopMenubar::Update()
 
             if (App::GetGameContext()->GetTerrain()->getWater() && App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
             {
-                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-                Ogre::GpuProgramParametersSharedPtr params = material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+                Ogre::MaterialPtr water_material = Ogre::MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                Ogre::GpuProgramParametersSharedPtr water_params = water_material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Water:"));
                 if (ImGui::SliderFloat("Scale", &m_water_scale, 1000.f, 10000.f, ""))
                 {
                     ImGui::PushID("scale");
-                    params->setNamedConstant("water_scale", m_water_scale);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("water_scale", m_water_scale);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
                 if (ImGui::SliderFloat("Color", &m_water_color, 0.f, 1.f, ""))
                 {
                     ImGui::PushID("color");
-                    params->setNamedConstant("color_density", m_water_color);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("color_density", m_water_color);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
                 if (ImGui::SliderFloat("Opacity", &m_water_opacity, 0.f, 1.f, ""))
                 {
                     ImGui::PushID("opacity");
-                    params->setNamedConstant("water_opacity", m_water_opacity);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("water_opacity", m_water_opacity);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
-                if (ImGui::SliderFloat("Scattering", &m_water_scattering, 0.f, 10.f, ""))
+                if (ImGui::SliderFloat("Specular", &m_water_specular, 0.f, 10.f, ""))
                 {
-                    ImGui::PushID("scattering");
-                    params->setNamedConstant("light_scattering", m_water_scattering);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    ImGui::PushID("specular");
+                    water_params->setNamedConstant("water_specular", m_water_specular);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
                 if (ImGui::SliderFloat("Waves", &m_water_distortion, 0.f, 4.f, ""))
                 {
                     ImGui::PushID("distortion");
-                    params->setNamedConstant("water_distortion", m_water_distortion);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("water_distortion", m_water_distortion);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
                 if (ImGui::SliderFloat("Reflection", &m_water_reflection, 1.f, 0.f, ""))
                 {
                     ImGui::PushID("reflection");
-                    params->setNamedConstant("water_reflection", m_water_reflection);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("water_reflection", m_water_reflection);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
                 if (ImGui::SliderFloat("Refraction", &m_water_refraction, 1.f, 0.f, ""))
                 {
                     ImGui::PushID("refraction");
-                    params->setNamedConstant("water_refraction", m_water_refraction);
-                    material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(params);
+                    water_params->setNamedConstant("water_refraction", m_water_refraction);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
+                    ImGui::PopID();
+                }
+                if (ImGui::SliderFloat("Depth", &m_water_depth, 0.f, 1.f, ""))
+                {
+                    ImGui::PushID("depth");
+                    water_params->setNamedConstant("water_depth", m_water_depth);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
+                    ImGui::PopID();
+                }
+                if (ImGui::SliderFloat("Caustics", &m_water_caustics, 0.f, 1.f, ""))
+                {
+                    ImGui::PushID("caustics");
+                    water_params->setNamedConstant("water_caustics", m_water_caustics);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
+                    ImGui::PopID();
+                }
+                if (ImGui::SliderFloat("Foam", &m_water_foam, 0.f, 1.f, ""))
+                {
+                    ImGui::PushID("foam");
+                    water_params->setNamedConstant("water_foam", m_water_foam);
+                    water_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(water_params);
                     ImGui::PopID();
                 }
             }

@@ -1,6 +1,8 @@
 uniform sampler2D normalMap;
 uniform sampler2D reflectMap;
 uniform sampler2D refractMap;
+uniform sampler2D depthMap;
+uniform sampler2D foamMap;
 uniform float timer;
 uniform vec3 cameraPos;
 uniform vec4 lightPos;
@@ -8,18 +10,22 @@ uniform vec4 lightPos;
 // UI options
 uniform float color_density;
 uniform float water_opacity;
-uniform float light_scattering;
+uniform float water_specular;
 uniform float water_distortion;
 uniform float water_reflection;
 uniform float water_refraction;
+uniform float water_depth;
+uniform float water_caustics;
+uniform float water_foam;
 uniform float water_scale;
+uniform vec3 water_color;
 
 // Caelum sun color
 uniform vec3 sun_color;
 
 varying vec4 projectionCoord;
 varying vec3 viewPos, worldPos;
-varying vec4 ppos;
+varying vec4 pixelPos;
 
 //tweakables
 vec2 windDir = vec2(0.5, -0.8); //wind direction XY
@@ -65,9 +71,8 @@ float fresnel_dielectric(vec3 Incoming, vec3 Normal, float eta)
 void main()
 {
     vec2 nCoord = vec2(0.0); //normal coords
-    float depth = 0.1;
-    float coast = smoothstep(0.3,0.7,depth);
-    float coast1 = smoothstep(0.49,0.5,depth);
+    float coast = smoothstep(0.3,0.7, 0.1);
+    float coast1 = smoothstep(0.49,0.5, 0.1);
 
     choppy = choppy * (coast)+0.05;
     bump = -bump*clamp(1.0-coast+0.0,0.0,1.0);
@@ -127,7 +132,7 @@ void main()
 
     // Reflection
     vec2 fragCoord = projectionCoord.xy / projectionCoord.w;
-    fragCoord = clamp(fragCoord,0.002,0.998);
+    // fragCoord = clamp(fragCoord,0.002,0.998);
 
     //texture edge bleed removal
     float fade = 12.0;
@@ -142,18 +147,19 @@ void main()
     // Refraction
     vec2 rcoord = reflect(vVec,nVec).xz;
     vec3 refraction = vec3(0.0);
-    
-    refraction.r = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r;
-    refraction.g = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration)).g;
-    refraction.b = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration*2.0)).b;
+
+    //refraction.r = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r;
+    //refraction.g = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration)).g;
+    //refraction.b = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration*2.0)).b;
+
+    refraction = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).rgb;
 
     // Finalize
     vec3 luminosity = vec3(1.30, 0.59, 0.11);
-    float reflectivity = pow(dot(luminosity, reflection*2.0),light_scattering);
-    float reflectivity1 = pow(dot(luminosity, reflection),3.0);
+    float reflectivity = pow(dot(luminosity, reflection*2.0), 0.5);
     vec3 R = reflect(vVec, nVec);
 
-    float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0);
+    float specular = clamp(pow(atan(max(dot(R, lVec),0.0)*1.55),1000.0)*reflectivity*8.0,0.0,1.0) * water_specular;
     vec3 specColor = mix(sun_color, vec3(1.0,1.0,1.0), clamp(1.0-exp(-(sunPos.y)*sunext),0.0,1.0));
 
     float waterSunGradient = dot(normalize(worldPos), -normalize(sunPos));
@@ -163,32 +169,57 @@ void main()
    
     float waterGradient = dot(normalize(worldPos), vec3(0.0,0.0,-1.0));
     waterGradient = clamp((waterGradient*0.5+0.5),0.2,1.0);
-    vec3 watercolor = (vec3(0.0078, 0.5176, 0.700)+waterSunColor)*waterGradient*1.5;
+    vec3 watercolor = (water_color+waterSunColor)*waterGradient*1.5;
     vec3 waterext = vec3(0.6, 0.8, 1.0);//water extinction
     watercolor = mix(watercolor*0.3*sunFade, watercolor, clamp(1.0-exp(-(sunPos.y*10.0)*sunext),0.0,1.0));
 
     reflection = mix(reflection, vec3(1,1,1), water_reflection);
-    refraction = mix(refraction, vec3(0,0,0), water_refraction);
-    refraction = mix(mix(refraction, watercolor, color_density), scatterColor, lightScatter);
+
+    float depth = texture2D(depthMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r; // RETARDED: Same are refractMap so we don't see heightmap rendered around entities that penetrate depthMap, due to anim/vs no anim...
+    float wdepth = clamp(depth * (projectionCoord.z * water_depth ), 0.0, 1.0);
+
+    refraction = mix(refraction, vec3(0,0,0), min(wdepth, water_refraction));
+    refraction = mix(mix(refraction, watercolor, min(wdepth, color_density)), scatterColor, lightScatter);
     vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, 1.0), fresnel * 0.6);
+
+    // Caustics: https://www.shadertoy.com/view/XtKfRG
+    vec3 k = vec3(worldPos.xy * scale*3.0 + nVec.xz, time*0.5);
+
+    mat3 m = mat3(-2,-1,2, 3,-2,1, 1,2,2);
+    vec3 a = k * m * 0.5;
+    vec3 b = a * m * 0.4;
+    vec3 c = b * m * 0.3;
+
+    vec4 caustics = (vec4(pow(min(min(length(.5 - fract(a)), length(.5 - fract(b))), length(.5 - fract(c))), 7.) * 25.) * 0.3) * water_caustics;
+    caustics *= (refraction.r/refraction.g)*0.5; // Depth already considered
+
+    // Foam: https://lettier.github.io/3d-game-shaders-for-beginners/foam.html
+    vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale*0.5 + nVec.xz*0.05 - time * 0.02);
+    vec4 foamColor = vec4(0.8, 0.85, 0.92, 1.0);
+
+    float amount  = clamp(foamPattern.r + 0.1, 0.0, 1.0);
+    amount *= (refraction.r/refraction.g)*0.5; // Depth already considered
+    amount  = amount * amount / (2.0 * (amount * amount - amount) + 1.0);
+
+    //vec4 foam = (mix(vec4(0.0), foamColor, amount*water_foam*clamp(sin(time), 0.0, 1.0))); // Fade
+    vec4 foam = (mix(vec4(0.0), foamColor, amount*water_foam));
+
+    gl_FragColor = color + vec4(specColor, 1.0)*specular + caustics + foam;
 
     // Smooth plane edge
     if (cameraPos.y < 2.0)
     {
-        color.a = clamp((projectionCoord.z), 0.0, water_opacity);
+        gl_FragColor.a = clamp((projectionCoord.z), 0.0, water_opacity);
     }
 
     // Underwater
     if (cameraPos.y < 0.0)
     {
-        float a = clamp((-cameraPos.y), 0.0, water_opacity - 0.2);
-        color = mix(vec4(refraction, a), vec4(reflection, a), 0.0);
+        gl_FragColor = vec4(watercolor*color_density, clamp((-cameraPos.y), 0.0, water_opacity - 0.2));
     }
 
-    gl_FragColor = color+(vec4(specColor, 1.0)*specular);
-
     // Fog
-    vec3 alteredPixelPosition = vec3(ppos.x, 0.0, ppos.z);
+    vec3 alteredPixelPosition = vec3(pixelPos.x, 0.0, pixelPos.z);
     const float alphaStart = 1500.0;
     const float alphaEnd = 5000.0;
     float distanceFromCamera = length(alteredPixelPosition);

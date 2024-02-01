@@ -96,6 +96,17 @@ private:
         Ogre::Entity*       waterplane_entity;
     };
 
+    struct RefractionDepthListener: Ogre::RenderTargetListener
+    {
+        RefractionDepthListener(): scene_mgr(nullptr), waterplane_entity(nullptr) {}
+
+        void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+        void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+
+        Ogre::SceneManager* scene_mgr;
+        Ogre::Entity*       waterplane_entity;
+    };
+
     float          GetWaveHeight(Ogre::Vector3 pos);
     void           ShowWave(Ogre::Vector3 refpos);
     bool           IsCameraUnderWater();
@@ -118,15 +129,21 @@ private:
     bool                  m_waterplane_force_update_pos;
     Ogre::Plane           m_reflect_plane;
     Ogre::Plane           m_refract_plane;
+    Ogre::Plane           m_refract_depth_plane;
     ReflectionListener    m_reflect_listener;
     RefractionListener    m_refract_listener;
+    RefractionDepthListener    m_refract_depth_listener;
     Ogre::Camera*         m_reflect_cam;
     Ogre::Camera*         m_refract_cam;
+    Ogre::Camera*         m_refract_depth_cam;
     Ogre::RenderTexture*  m_refract_rtt_target;
+    Ogre::RenderTexture*  m_refract_depth_rtt_target;
     Ogre::RenderTexture*  m_reflect_rtt_target;
     Ogre::TexturePtr      m_refract_rtt_texture;
+    Ogre::TexturePtr      m_refract_depth_rtt_texture;
     Ogre::TexturePtr      m_reflect_rtt_texture;
     Ogre::Viewport*       m_refract_rtt_viewport;
+    Ogre::Viewport*       m_refract_depth_rtt_viewport;
     Ogre::Viewport*       m_reflect_rtt_viewport;
     Ogre::SceneNode*      m_bottomplane_node;
     Ogre::Plane           m_bottom_plane;

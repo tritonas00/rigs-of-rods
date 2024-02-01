@@ -41,6 +41,7 @@ Water::Water(Ogre::Vector3 terrn_size) :
     m_water_visible(true),
     m_waterplane_mesh_scale(1.0f),
     m_refract_rtt_viewport(0),
+    m_refract_depth_rtt_viewport(0),
     m_reflect_rtt_viewport(0),
     m_bottom_height(0),
     m_water_height(0),
@@ -48,13 +49,16 @@ Water::Water(Ogre::Vector3 terrn_size) :
     m_waterplane_force_update_pos(false),
     m_frame_counter(0),
     m_refract_rtt_target(0),
+    m_refract_depth_rtt_target(0),
     m_reflect_rtt_target(0),
     m_reflect_cam(0),
-    m_refract_cam(0)
+    m_refract_cam(0),
+    m_refract_depth_cam(0)
 {
     //Ugh.. Why so ugly and hard to read
     m_reflect_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
     m_refract_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
+    m_refract_depth_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
 
     if (m_map_size.x < 1500 && m_map_size.z < 1500)
         m_waterplane_mesh_scale = 1.5f;
@@ -103,6 +107,12 @@ Water::~Water()
         m_refract_cam = nullptr;
     }
 
+    if (m_refract_depth_cam != nullptr)
+    {
+        App::GetGfxScene()->GetSceneManager()->destroyCamera(m_refract_depth_cam);
+        m_refract_depth_cam = nullptr;
+    }
+
     if (m_reflect_cam != nullptr)
     {
         App::GetGfxScene()->GetSceneManager()->destroyCamera(m_reflect_cam);
@@ -137,12 +147,26 @@ Water::~Water()
         m_refract_rtt_target = nullptr;
     }
 
+    if (m_refract_depth_rtt_target)
+    {
+        m_refract_depth_rtt_target->removeAllListeners();
+        m_refract_depth_rtt_target->removeAllViewports();
+        m_refract_depth_rtt_target = nullptr;
+    }
+
 #if 0 // Doesn't cut it with Ogre 1.11
     if (!m_refract_rtt_texture.isNull())
     {
         m_refract_rtt_texture->unload();
         Ogre::TextureManager::getSingleton().remove(m_refract_rtt_texture->getHandle());
         m_refract_rtt_texture.setNull();
+    }
+
+    if (!m_refract_depth_rtt_texture.isNull())
+    {
+        m_refract_depth_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_refract_depth_rtt_texture->getHandle());
+        m_refract_depth_rtt_texture.setNull();
     }
 #endif
 
@@ -209,6 +233,8 @@ void Water::PrepareWater()
         m_reflect_plane.d = - 0.15;
         m_refract_plane.normal = -Vector3::UNIT_Y;
         m_refract_plane.d = 0.15;
+        m_refract_depth_plane.normal = -Vector3::UNIT_Y;
+        m_refract_depth_plane.d = 0.15;
 
         if (full_gfx)
         {
@@ -242,6 +268,35 @@ void Water::PrepareWater()
 
                 // Also clip
                 m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
+            }
+
+            TexturePtr m_refract_depth_rtt_targetPtr = Ogre::TextureManager::getSingleton ().getByName ("RefractionDepth");
+            m_refract_depth_rtt_texture = m_refract_depth_rtt_targetPtr;
+            m_refract_depth_rtt_target = m_refract_depth_rtt_targetPtr->getBuffer()->getRenderTarget();
+            {
+                m_refract_depth_cam = App::GetGfxScene()->GetSceneManager()->createCamera("RefractDepthCam");
+                m_refract_depth_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
+                m_refract_depth_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
+                m_refract_depth_cam->setAspectRatio(
+                    (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+                    (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
+
+                m_refract_depth_rtt_viewport = m_refract_depth_rtt_target->addViewport(m_refract_depth_cam);
+                m_refract_depth_rtt_viewport->setClearEveryFrame(true);
+                m_refract_depth_rtt_viewport->setBackgroundColour(App::GetGfxScene()->GetSceneManager()->getFogColour());
+
+                MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+                mat->getTechnique(0)->getPass(0)->getTextureUnitState(3)->setTextureName("RefractionDepth");
+
+                m_refract_depth_rtt_viewport->setOverlaysEnabled(false);
+
+                m_refract_depth_rtt_target->addListener(&m_refract_depth_listener);
+
+                //optimisation
+                m_refract_depth_rtt_target->setAutoUpdated(false);
+
+                // Also clip
+                m_refract_depth_cam->enableCustomNearClipPlane(m_refract_depth_plane);
             }
         }
 
@@ -312,6 +367,7 @@ void Water::PrepareWater()
     m_waterplane_entity->setCastShadows(false);
     m_reflect_listener.waterplane_entity = m_waterplane_entity;
     m_refract_listener.waterplane_entity = m_waterplane_entity;
+    m_refract_depth_listener.waterplane_entity = m_waterplane_entity;
     //position
     m_waterplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("WaterPlane");
     m_waterplane_node->attachObject(m_waterplane_entity);
@@ -462,6 +518,11 @@ void Water::UpdateWater()
             m_refract_cam->setPosition(camera_pos);
             m_refract_cam->setFOVy(camera_fov);
             m_refract_rtt_target->update();
+
+            m_refract_depth_cam->setOrientation(camera_rot);
+            m_refract_depth_cam->setPosition(camera_pos);
+            m_refract_depth_cam->setFOVy(camera_fov);
+            m_refract_depth_rtt_target->update();
         }
     }
     else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
@@ -475,6 +536,11 @@ void Water::UpdateWater()
         m_refract_cam->setPosition(camera_pos);
         m_refract_cam->setFOVy(camera_fov);
         m_refract_rtt_target->update();
+
+        m_refract_depth_cam->setOrientation(camera_rot);
+        m_refract_depth_cam->setPosition(camera_pos);
+        m_refract_depth_cam->setFOVy(camera_fov);
+        m_refract_depth_rtt_target->update();
     }
     else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
@@ -491,6 +557,8 @@ void Water::WaterPrepareShutdown()
 {
     if (m_refract_rtt_target)
         m_refract_rtt_target->removeListener(&m_refract_listener);
+    if (m_refract_depth_rtt_target)
+        m_refract_depth_rtt_target->removeListener(&m_refract_depth_listener);
     if (m_reflect_rtt_target)
         m_reflect_rtt_target->removeListener(&m_reflect_listener);
 }
@@ -606,8 +674,10 @@ void Water::UpdateReflectionPlane(float h)
     {
         m_reflect_plane.normal = Vector3::UNIT_Y;
         m_refract_plane.normal = -Vector3::UNIT_Y;
+        m_refract_depth_plane.normal = -Vector3::UNIT_Y;
         m_reflect_plane.d = -h + 0.15;
         m_refract_plane.d = h + 0.15;
+        m_refract_depth_plane.d = h + 0.15;
         m_water_plane.d = -h;
         if (m_reflect_cam)
         {
@@ -619,6 +689,11 @@ void Water::UpdateReflectionPlane(float h)
     if (m_refract_cam)
     {
         m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
+    }
+
+    if (m_refract_depth_cam)
+    {
+        m_refract_depth_cam->enableCustomNearClipPlane(m_refract_depth_plane);
     }
 }
 
@@ -670,6 +745,20 @@ void Water::RefractionListener::preRenderTargetUpdate(const Ogre::RenderTargetEv
 }
 
 void Water::RefractionListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
+    this->waterplane_entity->setVisible(true);
+    App::GetGfxScene()->SetParticlesVisible(true); // Restore water spray
+}
+
+void Water::RefractionDepthListener::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
+    this->waterplane_entity->setVisible(false);
+    App::GetGfxScene()->SetParticlesVisible(false); // Hide water spray
+}
+
+void Water::RefractionDepthListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
     this->waterplane_entity->setVisible(true);
