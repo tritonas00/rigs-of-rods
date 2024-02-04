@@ -195,7 +195,7 @@ void main()
     vec4 foam = (mix(vec4(0.0), foamColor, amount*water_foam));
 
     // Caustics: https://www.shadertoy.com/view/XtKfRG
-    vec3 k = vec3(worldPos.xy * scale*3.0 + nVec.xz, time*0.5);
+    vec3 k = vec3(worldPos.xy * scale*4.0 - (nVec.xz*refrBump*distortFade), time*0.5);
 
     mat3 m = mat3(-2,-1,2, 3,-2,1, 1,2,2);
     vec3 a = k * m * 0.5;
