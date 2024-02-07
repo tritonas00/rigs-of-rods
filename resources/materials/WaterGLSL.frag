@@ -176,10 +176,10 @@ void main()
     reflection = mix(reflection, vec3(1,1,1), water_reflection);
 
     float depth = texture2D(depthMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r;
-    float wdepth = clamp(depth * (projectionCoord.z * water_depth), 0.0, 1.0);
+    depth = depth * projectionCoord.z * water_depth;
 
-    refraction = mix(refraction, vec3(0,0,0), min(wdepth, water_refraction));
-    refraction = mix(mix(refraction, watercolor, min(wdepth, color_density)), scatterColor, lightScatter);
+    refraction = mix(refraction, vec3(0,0,0), min(clamp(depth, 0.0, 1.0), water_refraction));
+    refraction = mix(mix(refraction, watercolor, min(clamp(depth, 0.0, 1.0), color_density)), scatterColor, lightScatter);
     vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, 1.0), fresnel * 0.6);
 
     // Foam: https://lettier.github.io/3d-game-shaders-for-beginners/foam.html
@@ -187,7 +187,7 @@ void main()
     vec4 foamColor = vec4(0.8, 0.85, 0.92, 1.0);
 
     float amount  = clamp(foamPattern.r + 0.1, 0.0, 1.0);
-    float foamDepth = 1.0 - clamp(depth * (projectionCoord.z * water_depth*8.0), 0.0, 1.0);
+    float foamDepth = 1.0 - clamp(depth * 8.0, 0.0, 1.0);
     amount *= foamDepth;
     amount  = amount * amount / (2.0 * (amount * amount - amount) + 1.0);
 
@@ -203,7 +203,7 @@ void main()
     vec3 c = b * m * 0.3;
 
     vec4 caustics = vec4(pow(min(min(length(.5 - fract(a)), length(.5 - fract(b))), length(.5 - fract(c))), 7.) * 25.) * water_caustics;
-    float causticsDepth = 1.0 - clamp(depth * (projectionCoord.z * water_depth*4.0), 0.0, 1.0);
+    float causticsDepth = 1.0 - clamp(depth * 4.0, 0.0, 1.0);
     caustics *= causticsDepth - foamDepth;
 
     gl_FragColor = color + vec4(specColor, 1.0)*specular + caustics + foam;
