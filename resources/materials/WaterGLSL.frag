@@ -183,11 +183,12 @@ void main()
     vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, 1.0), fresnel * 0.6);
 
     // Foam: https://lettier.github.io/3d-game-shaders-for-beginners/foam.html
-    vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale*0.5 + nVec.xz*0.05 - time * 0.02);
+    vec3 foamNormal = normalize(normal0 * bigWaves.x + normal1 * bigWaves.y);
+    vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale + nVec.xz/10.0 - time*0.02);
     vec4 foamColor = vec4(0.8, 0.85, 0.92, 1.0);
 
     float amount  = clamp(foamPattern.r + 0.1, 0.0, 1.0);
-    float foamDepth = 1.0 - clamp(depth * 8.0, 0.0, 1.0);
+    float foamDepth = clamp(foamNormal.r * 20.0, 0.0, 1.0) * (1.0 - clamp(depth * 4.0, 0.0, 1.0));
     amount *= foamDepth;
     amount  = amount * amount / (2.0 * (amount * amount - amount) + 1.0);
 
@@ -204,7 +205,7 @@ void main()
 
     vec4 caustics = vec4(pow(min(min(length(.5 - fract(a)), length(.5 - fract(b))), length(.5 - fract(c))), 7.) * 25.) * water_caustics;
     float causticsDepth = 1.0 - clamp(depth * 4.0, 0.0, 1.0);
-    caustics *= causticsDepth - foamDepth;
+    caustics *= causticsDepth;
 
     gl_FragColor = color + vec4(specColor, 1.0)*specular + caustics + foam;
 
