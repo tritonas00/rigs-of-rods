@@ -124,7 +124,7 @@ private:
     float m_water_distortion = 0.6;
     float m_water_reflection = 0.0;
     float m_water_refraction = 0.9;
-    float m_water_depth = 0.2;
+    float m_water_depth = 0.1;
     float m_water_scale = 5000.0;
     float m_water_caustics = 0.2;
     float m_water_foam = 0.5;

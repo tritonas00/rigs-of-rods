@@ -176,7 +176,8 @@ void main()
     reflection = mix(reflection, vec3(1,1,1), water_reflection);
 
     float depth = texture2D(depthMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r;
-    depth = depth * projectionCoord.z * water_depth;
+    depth = depth * length(viewPos);
+    depth = depth / (50.0*water_depth);
 
     refraction = mix(refraction, vec3(0,0,0), min(clamp(depth, 0.0, 1.0), water_refraction));
     refraction = mix(mix(refraction, watercolor, min(clamp(depth, 0.0, 1.0), color_density)), scatterColor, lightScatter);
