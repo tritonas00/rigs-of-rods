@@ -96,6 +96,12 @@ void main()
     nCoord = worldPos.xy * (scale * 2.0) + windDir * time * (windSpeed*0.7)-(normal4.xy/normal4.zz)*choppy;
     vec3 normal5 = 2.0 * texture2D(normalMap, nCoord + vec2(+time*0.1,-time*0.06)).rgb - 1.0;
 
+    // Foam normal
+    nCoord = worldPos.xy * (scale * 0.04) + windDir * time * (windSpeed*0.04);
+    vec3 normal6 = 2.0 * texture2D(normalMap, nCoord + vec2(-time*0.000015,-time*0.000005)).rgb - 1.0;
+    nCoord = worldPos.xy * (scale * 0.1) + windDir * time * (windSpeed*0.08)*choppy;
+    vec3 normal7 = 2.0 * texture2D(normalMap, nCoord + vec2(+time*0.000020,+time*0.000015)).rgb - 1.0;
+
     vec3 normal = normalize(normal0 * bigWaves.x + normal1 * bigWaves.y +
                             normal2 * midWaves.x + normal3 * midWaves.y +
 						    normal4 * smallWaves.x + normal5 * smallWaves.y);
@@ -184,12 +190,12 @@ void main()
     vec4 color = mix(vec4(refraction, water_opacity), vec4(reflection, 1.0), fresnel * 0.6);
 
     // Foam: https://lettier.github.io/3d-game-shaders-for-beginners/foam.html
-    vec3 foamNormal = normalize(normal0 * bigWaves.x + normal1 * bigWaves.y);
+    vec3 foamNormal = normalize(normal6 * bigWaves.x + normal7 * bigWaves.y);
     vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale + nVec.xz/10.0 - time*0.02);
     vec4 foamColor = vec4(0.8, 0.85, 0.92, 1.0);
 
     float amount  = clamp(foamPattern.r + 0.1, 0.0, 1.0);
-    float foamDepth = clamp(foamNormal.r * 20.0, 0.0, 1.0) * (1.0 - clamp(depth * 4.0, 0.0, 1.0));
+    float foamDepth = clamp(foamNormal.r * 20.0, 0.0, 1.0) * (1.0 - clamp(depth, 0.0, 1.0));
     amount *= foamDepth;
     amount  = amount * amount / (2.0 * (amount * amount - amount) + 1.0);
 
