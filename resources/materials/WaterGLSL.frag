@@ -102,13 +102,17 @@ void main()
     nCoord = worldPos.xy * (scale * 0.1) + windDir * time * (windSpeed*0.08)*choppy;
     vec3 normal7 = 2.0 * texture2D(normalMap, nCoord + vec2(+time*0.000020,+time*0.000015)).rgb - 1.0;
 
+    // Small waves normal
+    vec3 normalS = normalize(normal4 * smallWaves.x + normal5 * smallWaves.y);
+
     vec3 normal = normalize(normal0 * bigWaves.x + normal1 * bigWaves.y +
                             normal2 * midWaves.x + normal3 * midWaves.y +
 						    normal4 * smallWaves.x + normal5 * smallWaves.y);
 
     float normalFade = 1.0 - min(exp(-projectionCoord.w / 1000.0), 1.0);    
 
-    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), normalFade-water_distortion); // converting normals to tangent space 
+    vec3 nVec = mix(normal.xzy, vec3(0, 1, 0), normalFade-water_distortion); // converting normals to tangent space
+    vec3 nVecS = mix(normalS.xzy, vec3(0, 1, 0), normalFade-water_distortion); // converting normals to tangent space 
     vec3 vVec = normalize(viewPos);
     vec3 lVec = normalize(sunPos);
 
@@ -158,7 +162,7 @@ void main()
     //refraction.g = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration)).g;
     //refraction.b = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0-(rcoord*aberration*2.0)).b;
 
-    refraction = texture2D(refractMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).rgb;
+    refraction = texture2D(refractMap, (fragCoord-(nVecS.xz*refrBump*distortFade))*1.0).rgb;
 
     // Finalize
     vec3 luminosity = vec3(1.30, 0.59, 0.11);
@@ -181,7 +185,7 @@ void main()
 
     reflection = mix(reflection, vec3(1,1,1), water_reflection);
 
-    float depth = texture2D(depthMap, (fragCoord-(nVec.xz*refrBump*distortFade))*1.0).r;
+    float depth = texture2D(depthMap, (fragCoord-(nVecS.xz*refrBump*distortFade))*1.0).r;
     depth = depth * length(viewPos);
     depth = depth / (50.0*water_depth);
 
