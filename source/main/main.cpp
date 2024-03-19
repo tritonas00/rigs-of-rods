@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res, res, 0,
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
         Ogre::TextureManager::getSingleton ().createManual ("RefractionDepth",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res , res, 0,
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res, res, 0,
             Ogre::PF_DEPTH16, Ogre::TU_RENDERTARGET, 0, false, fsaa);
         Ogre::TextureManager::getSingleton ().createManual ("Reflection",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res, res, 0,
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
 
         if (!App::diag_warning_texture->getBool())

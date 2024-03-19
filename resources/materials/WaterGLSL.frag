@@ -195,7 +195,7 @@ void main()
 
     // Foam: https://lettier.github.io/3d-game-shaders-for-beginners/foam.html
     vec3 foamNormal = normalize(normal6 * bigWaves.x + normal7 * bigWaves.y);
-    vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale + nVec.xz/10.0 - time*0.02);
+    vec4 foamPattern = texture2D(foamMap, worldPos.xy * scale + nVec.xz/20.0 - time*0.02);
     vec4 foamColor = vec4(0.8, 0.85, 0.92, 1.0);
 
     float amount  = clamp(foamPattern.r + 0.1, 0.0, 1.0);
