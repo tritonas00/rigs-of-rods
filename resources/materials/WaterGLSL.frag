@@ -152,7 +152,7 @@ void main()
     distortFade.t = clamp(fragCoord.t*fade,0.0,1.0);
     distortFade.t -= clamp(1.0-(1.0-fragCoord.t)*fade,0.0,1.0); 
 
-    vec3 reflection = texture2D(reflectMap, fragCoord + (nVec.xz * vec2(reflBump,reflBump*6.0))*distortFade).rgb;
+    vec3 reflection = texture2D(reflectMap, fragCoord - (nVec.xz * vec2(reflBump,reflBump))*distortFade).rgb;
 
     // Refraction
     vec2 rcoord = reflect(vVec,nVec).xz;
@@ -221,10 +221,10 @@ void main()
     gl_FragColor = color + vec4(specColor, 1.0)*specular + caustics + foam;
 
     // Smooth plane edge
-    if (cameraPos.y < 2.0)
-    {
-        gl_FragColor.a = clamp((projectionCoord.z), 0.0, water_opacity);
-    }
+    //if (cameraPos.y < 2.0)
+    //{
+    //    gl_FragColor.a = clamp((projectionCoord.z), 0.0, water_opacity);
+    //}
 
     // Underwater
     if (cameraPos.y < 0.0)
@@ -238,7 +238,7 @@ void main()
     const float alphaEnd = 5000.0;
     float distanceFromCamera = length(alteredPixelPosition);
 
-    if (cameraPos.y >= 2.0)
+    if (cameraPos.y >= 0.0)
     {
         gl_FragColor.a = clamp((alphaEnd - distanceFromCamera) / (alphaEnd - alphaStart), 0.0, water_opacity);
     }
